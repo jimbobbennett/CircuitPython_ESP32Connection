@@ -67,18 +67,18 @@ def __connect(cs_pin, ready_pin, reset_pin, ssid, password):
     requests.set_socket(socket, esp)
     MQTT.set_socket(socket, esp)
 
-    logger.debug("MAC addr:", [hex(i) for i in esp.MAC_address])
+    logger.debug("MAC addr: " + ", ".join([hex(i) for i in esp.MAC_address]))
     logger.debug("Connecting to AP...")
 
     while not esp.is_connected:
         try:
             esp.connect_AP(ssid, password)
         except RuntimeError as err:
-            logger.debug("could not connect to AP, retrying: ", err)
+            logger.debug("could not connect to AP, retrying: " + str(err))
             continue
 
-    logger.info("Connected to", str(esp.ssid, "utf-8"), "\tRSSI:", esp.rssi)
-    logger.debug("My IP address is", esp.pretty_ip(esp.ip_address))
+    logger.info("Connected to " + str(esp.ssid, "utf-8") + "\tRSSI: " + str(esp.rssi))
+    logger.debug("My IP address is " + esp.pretty_ip(esp.ip_address))
 
     logger.debug("Setting time")
 
@@ -88,7 +88,7 @@ def __connect(cs_pin, ready_pin, reset_pin, ssid, password):
         logger.debug("Failed to obtain time, retrying in 1 second...")
         time.sleep(1)
 
-    logger.info("Time:", time.time())
+    logger.info("Time: " + str(time.time()))
 
 
 def connect(ssid, password):
