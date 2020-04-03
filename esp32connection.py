@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`circuitpython_esp32connection`
+circuitpython_esp32connection
 ================================================================================
 
 A WiFi connection helper for ESP32-based boards
@@ -44,7 +44,7 @@ Implementation Notes
 # imports
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/jimbobbennett/Circuitpython_CircuitPython_ESP32Connection.git"
+__repo__ = "https://github.com/jimbobbennett/CircuitPython_ESP32Connection.git"
 
 import time
 import board
