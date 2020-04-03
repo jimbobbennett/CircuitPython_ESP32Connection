@@ -60,8 +60,7 @@ Usage Example
 
 .. code-block:: python
 
-    connection = Connection()
-    connection.connect(secrets["ssid"], secrets["password"], True)
+    esp32connection.connect(secrets["ssid"], secrets["password"], True)
 
 Contributing
 ============
