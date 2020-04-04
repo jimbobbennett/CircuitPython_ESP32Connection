@@ -60,7 +60,16 @@ Usage Example
 
 .. code-block:: python
 
-    esp32connection.connect(secrets["ssid"], secrets["password"], True)
+    from esp32connection import Connection
+    import secrets
+
+    # Create the connection
+    connection = Connection()
+
+    # secrets must be a dictionary containing two values:
+    # ssid - the ssid of the WiFi to connect to
+    # password - the password of the WiFi to connect to
+    connection.connect(secrets)
 
 Contributing
 ============

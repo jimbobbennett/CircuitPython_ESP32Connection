@@ -50,32 +50,28 @@ import time
 import board
 import busio
 from digitalio import DigitalInOut
-import adafruit_requests as requests
 import adafruit_minimqtt as MQTT
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
 from adafruit_esp32spi import adafruit_esp32spi
+from adafruit_esp32spi.adafruit_esp32spi_wifimanager import ESPSPI_WiFiManager
 from adafruit_ntp import NTP
 import adafruit_logging as logging
 
 
-def __connect(cs_pin, ready_pin, reset_pin, ssid, password):
+def __connect(cs_pin, ready_pin, reset_pin, secrets) -> ESPSPI_WiFiManager:
     logger = logging.getLogger("log")
 
     spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
     esp = adafruit_esp32spi.ESP_SPIcontrol(spi, cs_pin, ready_pin, reset_pin)
 
-    requests.set_socket(socket, esp)
+    wifi = ESPSPI_WiFiManager(esp, secrets, attempts=5)
+
     MQTT.set_socket(socket, esp)
 
     logger.debug("MAC addr: " + ", ".join([hex(i) for i in esp.MAC_address]))
     logger.debug("Connecting to AP...")
 
-    while not esp.is_connected:
-        try:
-            esp.connect_AP(ssid, password)
-        except RuntimeError as err:
-            logger.debug("could not connect to AP, retrying: " + str(err))
-            continue
+    wifi.connect()
 
     logger.info("Connected to " + str(esp.ssid, "utf-8") + "\tRSSI: " + str(esp.rssi))
     logger.debug("My IP address is " + esp.pretty_ip(esp.ip_address))
@@ -90,20 +86,31 @@ def __connect(cs_pin, ready_pin, reset_pin, ssid, password):
 
     logger.info("Time: " + str(time.time()))
 
+    return wifi
 
-def connect(ssid, password):
+
+class Connection:
     """
-    Connects to WiFi.
-
-    This currently supports the PyBadge with Airlift Featherwing, and PyPortals
+    A WiFi connection helper for ESP32-based boards
     """
-    try:
-        esp32_cs = DigitalInOut(board.ESP_CS)
-        esp32_ready = DigitalInOut(board.ESP_BUSY)
-        esp32_reset = DigitalInOut(board.ESP_RESET)
-    except AttributeError:
-        esp32_cs = DigitalInOut(board.D13)
-        esp32_ready = DigitalInOut(board.D11)
-        esp32_reset = DigitalInOut(board.D12)
 
-    __connect(esp32_cs, esp32_ready, esp32_reset, ssid, password)
+    def __init__(self):
+        self.wifi = None
+
+    def connect(self, secrets) -> ESPSPI_WiFiManager:
+        """
+        Connects to WiFi.
+
+        This currently supports the PyBadge with Airlift Featherwing, and PyPortals
+        """
+        try:
+            esp32_cs = DigitalInOut(board.ESP_CS)
+            esp32_ready = DigitalInOut(board.ESP_BUSY)
+            esp32_reset = DigitalInOut(board.ESP_RESET)
+        except AttributeError:
+            esp32_cs = DigitalInOut(board.D13)
+            esp32_ready = DigitalInOut(board.D11)
+            esp32_reset = DigitalInOut(board.D12)
+
+        self.wifi = __connect(esp32_cs, esp32_ready, esp32_reset, secrets)
+        return self.wifi
